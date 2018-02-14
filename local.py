@@ -42,9 +42,6 @@ def local_1(args):
     Returns:
         computation_output(json) : {"output": {
                                         "beta_vector_local": ,
-                                        "r_2_local": ,
-                                        "ts_local": ,
-                                        "ps_local": ,
                                         "mean_y_local": ,
                                         "count_local": ,
                                         "computation_phase":
@@ -176,4 +173,4 @@ if __name__ == '__main__':
         computation_output = local_2(parsed_args)
         sys.stdout.write(computation_output)
     else:
-        raise ValueError("Error Occurred at Remote")
+        raise ValueError("Error Occurred at Local")

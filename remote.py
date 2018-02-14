@@ -73,7 +73,7 @@ def remote_2(args):
     # calculate the global model fit statistics, r_2_global, ts_global,
     # ps_global
     Args:
-        args (dictionary): {'output': {
+        args (dictionary): {'input': {
                                 'SSE_local': ,
                                 'SST_local': ,
                                 'varX_matrix_local': ,
