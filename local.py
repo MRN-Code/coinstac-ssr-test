@@ -15,11 +15,14 @@ Example:
                             "cache":{}
                             }'
 """
-#import argparse
+import warnings
+warnings.filterwarnings("ignore")
+
 import json
 import numpy as np
 import sys
 import regression as reg
+import statsmodels.api as sm
 
 
 def local_1(args, computation_phase):
@@ -77,9 +80,10 @@ def local_1(args, computation_phase):
     X = input_list['covariates']
     y = input_list['dependents']
     lamb = input_list['lambda']
-    biased_X = np.insert(X, 0, 1, axis=1)
+#    biased_X = np.insert(X, 0, 1, axis=1)
+    biased_X = sm.add_constant(X)
 
-    beta_vector = reg.one_shot_regression(X, y, lamb)
+    beta_vector = reg.one_shot_regression(biased_X, y, lamb)
 
     r_squared = reg.r_square(biased_X, y, beta_vector)
     ts_beta = reg.t_value(biased_X, y, beta_vector)
@@ -100,7 +104,8 @@ def local_1(args, computation_phase):
             'covariates': X,
             'dependents': y,
             'lambda': lamb
-        }
+        },
+        'success': True
     }
 
 #    return json.dumps(
@@ -185,16 +190,15 @@ def local_2(args, computation_phase):
 
 
 if __name__ == '__main__':
-    args = json.loads(sys.argv[1])
-    input_list = args['input']
+    parsed_args = json.loads(sys.argv[1])
 
-    if 'computation_phase' not in input_list.keys():
+    if 'computation_phase' not in parsed_args.keys():
         computation_phase = 'local_1'
-        computation_output = local_1(args, computation_phase)
+        computation_output = local_1(parsed_args, computation_phase)
         sys.stdout.write(computation_output)
-    elif input_list['computation_phase'] == 'remote_1':
+    elif parsed_args['computation_phase'] == 'remote_1':
         computation_phase = 'local_2'
-        computation_output = local_2(args, computation_phase)
+        computation_output = local_2(parsed_args, computation_phase)
         sys.stdout.write(computation_output)
     else:
         raise ValueError('Invalid value for computation_phase')
