@@ -8,14 +8,14 @@
   },
   "computation": {
     "type": "docker",
-    "dockerImage": "coinstac\/ssr_test",
+    "dockerImage": "ssr_test",
     "command": [
       "python",
       "\/computation\/local.py"
     ],
     "remote": {
       "type": "docker",
-      "dockerImage": "coinstac\/ssr_test",
+      "dockerImage": "ssr_test",
       "command": [
         "python",
         "\/computation\/remote.py"
