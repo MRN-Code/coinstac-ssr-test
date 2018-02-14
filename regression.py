@@ -4,14 +4,14 @@ This module contains functions to perform ridge regression and other relevant
 functions including calculation of the coefficient of determination R^2 and
 t-value
 """
-#import sklearn.linear_model
-import warnings
-warnings.filterwarnings("ignore")
-
 import numpy as np
 import scipy as sp
+import warnings
 from scipy import stats
-import statsmodels.api as sm
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import statsmodels.api as sm
 
 
 def one_shot_regression(X, y, lamb):
