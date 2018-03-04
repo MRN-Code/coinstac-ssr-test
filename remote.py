@@ -141,11 +141,12 @@ def remote_2(args):
 if __name__ == '__main__':
 
     parsed_args = json.loads(sys.argv[1])
+    phase_key = list(reg.listRecursive(parsed_args, 'computation_phase'))
 
-    if parsed_args["input"]["local0"]["computation_phase"] == 'local_1':
+    if "local_1" in phase_key:
         computation_output = remote_1(parsed_args)
         sys.stdout.write(computation_output)
-    elif parsed_args["input"]["local0"]["computation_phase"] == 'local_2':
+    elif "local_2" in phase_key:
         computation_output = remote_2(parsed_args)
         sys.stdout.write(computation_output)
     else:

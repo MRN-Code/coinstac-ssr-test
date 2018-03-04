@@ -10,14 +10,10 @@ Created on Wed Feb 14 16:53:47 2018
 
 import statsmodels.api as sm
 
-# Example 1 - corresponds to one inputspec.json
-X = [[2, 3], [3, 4], [7, 8], [7, 5], [9, 8]]
-y = [6, 7, 8, 5, 6]
+# Example 1 - corresponds to one inputspec.json (3rd-Ventricle)
+X = [[0, 22], [1, 47], [0, 56], [1, 73]]
+y = [2115.49, 4019.55, 4934.63, 9360.22]
 lamb = 0.
-
-# Example 2 - another inputspec.json
-# X = [20.1, 7.1, 16.1, 14.9, 16.7, 8.8, 9.7, 10.3, 22, 16.2, 12.1, 10.3]
-# y = [31.5, 18.9, 35, 31.6, 22.6, 26.2, 14.1, 24.7, 44.8, 23.2, 31.4, 17.7]
 
 X = sm.add_constant(X)
 

@@ -15,10 +15,10 @@ Example:
 """
 import json
 import numpy as np
+import os
 import sys
 import regression as reg
 import warnings
-from itertools import chain
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -31,7 +31,7 @@ def local_1(args):
     Args:
         args (dictionary) : {"input": {
                                 "covariates": ,
-                                 "dependents": ,
+                                 "data": ,
                                  "lambda": ,
                                 },
                             "cache": {}
@@ -57,11 +57,32 @@ def local_1(args):
 
     """
     input_list = args["input"]
-    X = input_list["covariates"]
-    y = input_list["dependents"]
+    X_list = input_list["covariates"]
+    y_list = input_list["data"]
+
+    X, y_files = [], []
+
+    for i in range(1, len(X_list[0][0])):
+        y_files.append(X_list[0][0][i][0])
+        X.append(X_list[0][0][i][1:])
+
+    X = [[int(i[0] == 'True'), float(i[1])] for i in X]
+
+    y = []
+    dependents = y_list[1][0]
+    file_paths = y_list[0][0]
+    for file in file_paths:
+        if file.split('-')[-1] in y_files:
+            with open(
+                    os.path.join(args["state"]["baseDirectory"],
+                                 file.split('-')[-1])) as fh:
+                for line in fh:
+                    if line.startswith(dependents[0]):
+                        y.append(float(line.split('\t')[1]))
+
     lamb = input_list["lambda"]
     biased_X = sm.add_constant(X)
-
+    raise Exception(X, y)
     beta_vector = reg.one_shot_regression(biased_X, y, lamb)
 
     computation_output = {
@@ -139,24 +160,15 @@ def local_2(args):
     return json.dumps(computation_output)
 
 
-def get_all_keys(current_dict):
-    children = []
-    for k in current_dict:
-        yield k
-        if isinstance(current_dict[k], dict):
-            children.append(get_all_keys(current_dict[k]))
-    for k in chain.from_iterable(children):
-        yield k
-
-
 if __name__ == '__main__':
 
     parsed_args = json.loads(sys.argv[1])
+    phase_key = list(reg.listRecursive(parsed_args, 'computation_phase'))
 
-    if "computation_phase" not in list(get_all_keys(parsed_args)):
+    if not phase_key:
         computation_output = local_1(parsed_args)
         sys.stdout.write(computation_output)
-    elif "computation_phase" in list(get_all_keys(parsed_args)):
+    elif "remote_1" in phase_key:
         computation_output = local_2(parsed_args)
         sys.stdout.write(computation_output)
     else:
