@@ -82,7 +82,6 @@ def local_1(args):
 
     lamb = input_list["lambda"]
     biased_X = sm.add_constant(X)
-    raise Exception(X, y)
     beta_vector = reg.one_shot_regression(biased_X, y, lamb)
 
     computation_output = {
