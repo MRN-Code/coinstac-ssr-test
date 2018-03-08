@@ -61,22 +61,40 @@ def local_1(args):
     y_list = input_list["data"]
 
     X, y_files = [], []
-
+    # covariates: { value: [
+    # [
+    #   ['freesurferfile', 'isControl', 'age'],
+    #   ['subject1.txt', 'True', '72'],
+    #   ['subject2.txt', 'False', '34'],
+    # ],
+    # ['isControl'],
+    # ['bool']
+    # ] }
+    # Add covar values to 2 arrays
+    # Not looking for labels to match columns, just grabbing listed values
     for i in range(1, len(X_list[0][0])):
+        # Covar files added to list excluding header
         y_files.append(X_list[0][0][i][0])
+        # Covar data added to list excluding header
         X.append(X_list[0][0][i][1:])
 
+    # Make int/float covar values
     X = [[int(i[0] == 'True'), float(i[1])] for i in X]
 
+    # Y is to contain numerical values corresponding to subject ROI
     y = []
+    # Grab data ROIs
     dependents = y_list[1][0]
+    # Grab data file paths
     file_paths = y_list[0][0]
     for file in file_paths:
         if file.split('-')[-1] in y_files:
             with open(
                     os.path.join(args["state"]["baseDirectory"],
-                                 file.split('-')[-1])) as fh:
+                                file)) as fh:
+                                 # file.split('-')[-1])) as fh:
                 for line in fh:
+                    # Will this grab all ROIs? Only grabbing the first ROI
                     if line.startswith(dependents[0]):
                         y.append(float(line.split('\t')[1]))
 
