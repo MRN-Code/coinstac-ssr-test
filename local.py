@@ -66,6 +66,12 @@ def local_1(args):
 
     beta_vector, meanY_vector, lenY_vector = [], [], []
 
+    local_params = []
+    local_sse = []
+    local_pvalues = []
+    local_tvalues = []
+    local_rsquared = []
+
     for column in y.columns:
         curr_y = list(y[column])
         beta = reg.one_shot_regression(biased_X, curr_y, lamb)
@@ -73,13 +79,33 @@ def local_1(args):
         meanY_vector.append(np.mean(curr_y))
         lenY_vector.append(len(y))
 
+        # Printing local stats as well
+        model = sm.OLS(curr_y, biased_X.astype(float)).fit()
+        local_params.append(model.params)
+        local_sse.append(model.ssr)  # numpy float64
+        local_pvalues.append(model.pvalues)
+        local_tvalues.append(model.tvalues)
+        local_rsquared.append(model.rsquared_adj)
+
+    keys = ["beta", "sse", "pval", "tval", "rsquared"]
+    dict_list = []
+    for index, _ in enumerate(y_labels):
+        values = [
+            local_params[index].tolist(), local_sse[index],
+            local_pvalues[index].tolist(), local_tvalues[index].tolist(),
+            local_rsquared[index]
+        ]
+        local_stats_dict = {key: value for key, value in zip(keys, values)}
+        dict_list.append(local_stats_dict)
+
     computation_output = {
         "output": {
             "beta_vector_local": beta_vector,
             "mean_y_local": meanY_vector,
             "count_local": lenY_vector,
             "computation_phase": 'local_1',
-            "y_labels": y_labels
+            "y_labels": y_labels,
+            "local_stats_dict": dict_list
         },
         "cache": {
             "covariates": X.values.tolist(),

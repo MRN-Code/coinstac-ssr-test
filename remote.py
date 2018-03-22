@@ -40,7 +40,11 @@ def remote_1(args):
     """
     input_list = args["input"]
     y_labels = input_list["local0"][
-        "y_labels"]  # don't like this line here becuase everyone has to sent the labels, but they should have been available at the remote itself by virtue of having specified in the compspec.json
+        "y_labels"]  # don't like this line here because everyone has to sent the labels, but they should have been available at the remote itself by virtue of having specified in the compspec.json
+
+    all_local_stats_dicts = [
+        input_list[site]["local_stats_dict"] for site in input_list
+    ]
 
     avg_beta_vector = np.average(
         [
@@ -68,7 +72,8 @@ def remote_1(args):
             "avg_beta_vector": avg_beta_vector.tolist(),
             "mean_y_global": mean_y_global.tolist(),
             "dof_global": dof_global.tolist(),
-            "y_labels": y_labels
+            "y_labels": y_labels,
+            "local_stats_dict": all_local_stats_dicts
         },
     }
 
@@ -117,6 +122,7 @@ def remote_2(args):
     """
     input_list = args["input"]
     y_labels = args["cache"]["y_labels"]
+    all_local_stats_dicts = args["cache"]["local_stats_dict"]
 
     cache_list = args["cache"]
     avg_beta_vector = cache_list["avg_beta_vector"]
@@ -144,17 +150,66 @@ def remote_2(args):
         ts_global.append(ts)
         ps_global.append(ps)
 
-    keys = [
-        "ROI", "avg_beta_vector", "r2_global", "ts_global", "ps_global",
-        "dof_global"
+
+# =============================================================================
+#     # Block of code to print just global stats
+#     keys = [
+#         "ROI", "avg_beta_vector", "r2_global", "ts_global", "ps_global",
+#         "dof_global"
+#     ]
+#     dict_list = []
+#     for index, label in enumerate(y_labels):
+#         values = [
+#             label, avg_beta_vector[index], r_squared_global[index],
+#             ts_global[index].tolist(), ps_global[index], dof_global[index]
+#         ]
+#         my_dict = {key: value for key, value in zip(keys, values)}
+#         dict_list.append(my_dict)
+#
+#     computation_output = {
+#         "output": {
+#             "regressions": dict_list
+#         },
+#         "success": True
+#     }
+# =============================================================================
+
+    # Block of code to print local stats as well
+    sites = []
+    for i in range(len(all_local_stats_dicts)):
+        sites_str = 'Site_' + str(i)
+        sites.append(sites_str)
+
+    all_local_stats_dicts = list(map(list, zip(*all_local_stats_dicts)))
+
+    a_dict = []
+    for i in range(len(all_local_stats_dicts)):
+        my_dict = {
+            key: value
+            for key, value in zip(sites, all_local_stats_dicts[i])
+        }
+        a_dict.append(my_dict)
+
+    # Block of code to print just global stats
+    keys1 = [
+        "avg_beta_vector", "r2_global", "ts_global", "ps_global", "dof_global"
     ]
-    dict_list = []
-    for index, label in enumerate(y_labels):
+    global_dict_list = []
+    for index, _ in enumerate(y_labels):
         values = [
-            label, avg_beta_vector[index], r_squared_global[index],
+            avg_beta_vector[index], r_squared_global[index],
             ts_global[index].tolist(), ps_global[index], dof_global[index]
         ]
-        my_dict = {key: value for key, value in zip(keys, values)}
+        my_dict = {key: value for key, value in zip(keys1, values)}
+        global_dict_list.append(my_dict)
+
+    keys2 = ["ROI", "global_stats", "local_stats"]
+    dict_list = []
+
+    # Print Everything
+    for index, label in enumerate(y_labels):
+        values = [label, global_dict_list[index], a_dict[index]]
+        my_dict = {key: value for key, value in zip(keys2, values)}
         dict_list.append(my_dict)
 
     computation_output = {
