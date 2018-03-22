@@ -15,6 +15,7 @@ Example:
 """
 import json
 import numpy as np
+import pandas as pd
 import sys
 import regression as reg
 import warnings
@@ -57,24 +58,32 @@ def local_1(args):
 
     """
     input_list = args["input"]
-    (X, y) = fsl_parser(args)
-    # X - dataframe
-    # y - dataframe
+    (X, y, y_labels) = fsl_parser(args)
 
     lamb = input_list["lambda"]
     biased_X = sm.add_constant(X)
-    beta_vector = reg.one_shot_regression(biased_X, y, lamb)
+    biased_X = biased_X.values
+
+    beta_vector, meanY_vector, lenY_vector = [], [], []
+
+    for column in y.columns:
+        curr_y = list(y[column])
+        beta = reg.one_shot_regression(biased_X, curr_y, lamb)
+        beta_vector.append(beta.tolist())
+        meanY_vector.append(np.mean(curr_y))
+        lenY_vector.append(len(y))
 
     computation_output = {
         "output": {
-            "beta_vector_local": beta_vector.tolist(),
-            "mean_y_local": np.mean(y),
-            "count_local": len(y),
-            "computation_phase": 'local_1'
+            "beta_vector_local": beta_vector,
+            "mean_y_local": meanY_vector,
+            "count_local": lenY_vector,
+            "computation_phase": 'local_1',
+            "y_labels": y_labels
         },
         "cache": {
-            "covariates": X,
-            "dependents": y,
+            "covariates": X.values.tolist(),
+            "dependents": y.values.tolist(),
             "lambda": lamb
         }
     }
@@ -123,8 +132,17 @@ def local_2(args):
     avg_beta_vector = input_list["avg_beta_vector"]
     mean_y_global = input_list["mean_y_global"]
 
-    SSE_local = reg.sum_squared_error(biased_X, y, avg_beta_vector)
-    SST_local = np.sum(np.square(np.subtract(y, mean_y_global)))
+    #    raise Exception(y, type(y))
+    y = pd.DataFrame(y)
+
+    SSE_local, SST_local = [], []
+    for index, column in enumerate(y.columns):
+        curr_y = list(y[column])
+        SSE_local.append(
+            reg.sum_squared_error(biased_X, curr_y, avg_beta_vector))
+        SST_local.append(
+            np.sum(np.square(np.subtract(curr_y, mean_y_global[index]))))
+
     varX_matrix_local = np.dot(biased_X.T, biased_X)
 
     computation_output = {

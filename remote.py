@@ -39,26 +39,36 @@ def remote_1(args):
 
     """
     input_list = args["input"]
+    y_labels = input_list["local0"][
+        "y_labels"]  # don't like this line here becuase everyone has to sent the labels, but they should have been available at the remote itself by virtue of having specified in the compspec.json
 
-    avg_beta_vector = np.mean(
-        [input_list[site]["beta_vector_local"] for site in input_list], axis=0)
+    avg_beta_vector = np.average(
+        [
+            np.array(input_list[site]["beta_vector_local"])
+            for site in input_list
+        ],
+        axis=0)
 
     mean_y_local = [input_list[site]["mean_y_local"] for site in input_list]
-    count_y_local = [input_list[site]["count_local"] for site in input_list]
-    mean_y_global = np.average(mean_y_local, weights=count_y_local)
+    count_y_local = [
+        np.array(input_list[site]["count_local"]) for site in input_list
+    ]
+    mean_y_global = np.array(mean_y_local) * np.array(count_y_local)
+    mean_y_global = np.average(mean_y_global, axis=0)
 
-    dof_global = sum(count_y_local) - len(avg_beta_vector)
+    dof_global = sum(count_y_local) - avg_beta_vector.shape[1]
 
     computation_output = {
         "output": {
             "avg_beta_vector": avg_beta_vector.tolist(),
-            "mean_y_global": mean_y_global,
+            "mean_y_global": mean_y_global.tolist(),
             "computation_phase": 'remote_1'
         },
         "cache": {
             "avg_beta_vector": avg_beta_vector.tolist(),
-            "mean_y_global": mean_y_global,
-            "dof_global": dof_global
+            "mean_y_global": mean_y_global.tolist(),
+            "dof_global": dof_global.tolist(),
+            "y_labels": y_labels
         },
     }
 
@@ -106,31 +116,50 @@ def remote_2(args):
 
     """
     input_list = args["input"]
+    y_labels = args["cache"]["y_labels"]
 
     cache_list = args["cache"]
     avg_beta_vector = cache_list["avg_beta_vector"]
     dof_global = cache_list["dof_global"]
 
-    SSE_global = np.sum([input_list[site]["SSE_local"] for site in input_list])
-    SST_global = np.sum([input_list[site]["SST_local"] for site in input_list])
+    SSE_global = sum(
+        [np.array(input_list[site]["SSE_local"]) for site in input_list])
+    SST_global = sum(
+        [np.array(input_list[site]["SST_local"]) for site in input_list])
     varX_matrix_global = sum([
         np.array(input_list[site]["varX_matrix_local"]) for site in input_list
     ])
 
     r_squared_global = 1 - (SSE_global / SST_global)
-    MSE = SSE_global / dof_global
-    var_covar_beta_global = MSE * sp.linalg.inv(varX_matrix_global)
-    se_beta_global = np.sqrt(var_covar_beta_global.diagonal())
-    ts_global = avg_beta_vector / se_beta_global
-    ps_global = reg.t_to_p(ts_global, dof_global)
+    MSE = SSE_global / np.array(dof_global)
+
+    ts_global = []
+    ps_global = []
+
+    for i in range(len(MSE)):
+        var_covar_beta_global = MSE[i] * sp.linalg.inv(varX_matrix_global)
+        se_beta_global = np.sqrt(var_covar_beta_global.diagonal())
+        ts = avg_beta_vector[i] / se_beta_global
+        ps = reg.t_to_p(ts, dof_global[i])
+        ts_global.append(ts)
+        ps_global.append(ps)
+
+    keys = [
+        "ROI", "avg_beta_vector", "r2_global", "ts_global", "ps_global",
+        "dof_global"
+    ]
+    dict_list = []
+    for index, label in enumerate(y_labels):
+        values = [
+            label, avg_beta_vector[index], r_squared_global[index],
+            ts_global[index].tolist(), ps_global[index], dof_global[index]
+        ]
+        my_dict = {key: value for key, value in zip(keys, values)}
+        dict_list.append(my_dict)
 
     computation_output = {
         "output": {
-            "avg_beta_vector": cache_list["avg_beta_vector"],
-            "r_2_global": r_squared_global,
-            "ts_global": ts_global.tolist(),
-            "ps_global": ps_global,
-            "dof_global": cache_list["dof_global"]
+            "regressions": dict_list
         },
         "success": True
     }
