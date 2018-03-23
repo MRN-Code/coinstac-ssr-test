@@ -4,14 +4,6 @@
 This script includes the local computations for single-shot ridge
 regression with decentralized statistic calculation
 
-Example:
-    python local.py '{"input":
-                        {"covariates": [[2,3],[3,4],[7,8],[7,5],[9,8]],
-                         "dependents": [6,7,8,5,6],
-                         "lambda": 0
-                         },
-                     "cache": {}
-                     }'
 """
 import json
 import numpy as np
@@ -59,8 +51,8 @@ def local_1(args):
     """
     input_list = args["input"]
     (X, y) = vbm_parser(args)
-#    y = y.loc[:, 0:100] # uncomments this line to show a demo
-    y_labels = ['Voxel_' + str(i) for i in range(y.shape[1])]
+#    y = y.loc[:, 0:100]  # uncomment this line to show a demo
+    y_labels = ['{}_{}'.format('voxel', str(i)) for i in range(y.shape[1])]
 
     lamb = input_list["lambda"]
     biased_X = sm.add_constant(X)
@@ -160,7 +152,6 @@ def local_2(args):
     avg_beta_vector = input_list["avg_beta_vector"]
     mean_y_global = input_list["mean_y_global"]
 
-    #    raise Exception(y, type(y))
     y = pd.DataFrame(y)
 
     SSE_local, SST_local = [], []
