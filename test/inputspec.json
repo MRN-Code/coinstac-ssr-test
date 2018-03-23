@@ -3,38 +3,39 @@
     "value": [
       [
         [
-          ["freesurferfile", "isControl", "age"],
-          ["subject0_aseg_stats.txt", "False", "22.0"],
-          ["subject1_aseg_stats.txt", "True", "47.0"],
-          ["subject2_aseg_stats.txt", "False", "56.0"],
-          ["subject3_aseg_stats.txt", "True", "73.0"]
+          ["niftifile", "isControl", "age", "sex"],
+          ["M02101222_swc1t1avg_6mm.nii", "True", "46", "F"],
+          ["M02103447_swc1t1avg_6mm.nii", "True", "50", "M"],
+          ["M02104909_swc1t1avg_6mm.nii", "True", "35", "M"],
+          ["M02108714_swc1t1avg_6mm.nii", "False", "28", "M"],
+          ["M02110676_swc1t1avg_6mm.nii", "False", "39", "M"],
+          ["M02111314_swc1t1avg_6mm.nii", "False", "23", "M"],
         ]
       ],
       [
         "isControl",
-        "age"
+        "age",
+        "sex"
       ],
       [
         "boolean",
-        "number"
+        "number",
+        "string"
       ]
     ]
   },
   "data": {
     "value": [
       [
-        [
-          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject0_aseg_stats.txt",
-          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject1_aseg_stats.txt",
-          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject2_aseg_stats.txt",
-          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject3_aseg_stats.txt"
-        ]
+        "M02101222_swc1t1avg_6mm.nii",
+        "M02103447_swc1t1avg_6mm.nii",
+        "M02104909_swc1t1avg_6mm.nii",
+        "M02108714_swc1t1avg_6mm.nii",
+        "M02110676_swc1t1avg_6mm.nii",
+        "M02111314_swc1t1avg_6mm.nii"
       ],
       [
-        ["3rd-Ventricle", "4th-Ventricle", "5th-Ventricle"]
-      ],
-      [
-        "FreeSurfer"
+        "niftifile"
       ]
     ]
   },
