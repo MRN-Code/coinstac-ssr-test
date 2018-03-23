@@ -19,7 +19,7 @@ import pandas as pd
 import sys
 import regression as reg
 import warnings
-from parsers import fsl_parser
+from parsers import vbm_parser
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -58,7 +58,9 @@ def local_1(args):
 
     """
     input_list = args["input"]
-    (X, y, y_labels) = fsl_parser(args)
+    (X, y) = vbm_parser(args)
+#    y = y.loc[:, 0:100] # uncomments this line to show a demo
+    y_labels = ['Voxel_' + str(i) for i in range(y.shape[1])]
 
     lamb = input_list["lambda"]
     biased_X = sm.add_constant(X)
