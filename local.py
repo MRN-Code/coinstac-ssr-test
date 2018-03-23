@@ -82,7 +82,7 @@ def local_1(args):
         # Printing local stats as well
         model = sm.OLS(curr_y, biased_X.astype(float)).fit()
         local_params.append(model.params)
-        local_sse.append(model.ssr)  # numpy float64
+        local_sse.append(model.ssr)
         local_pvalues.append(model.pvalues)
         local_tvalues.append(model.tvalues)
         local_rsquared.append(model.rsquared_adj)
