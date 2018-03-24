@@ -103,9 +103,9 @@ def local_1(args):
             "beta_vector_local": beta_vector,
             "mean_y_local": meanY_vector,
             "count_local": lenY_vector,
-            "computation_phase": 'local_1',
             "y_labels": y_labels,
-            "local_stats_dict": dict_list
+            "local_stats_dict": dict_list,
+            "computation_phase": 'local_1',
         },
         "cache": {
             "covariates": X.values.tolist(),
