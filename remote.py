@@ -212,9 +212,9 @@ def remote_2(args):
         "success": True
     }
 
-    with open(os.path.join(args["state"]["outputDirectory"], 'data.txt'),
-              'w') as outfile:
-        json.dump(computation_output, outfile)
+#    with open(os.path.join(args["state"]["outputDirectory"], 'data.txt'),
+#              'w') as outfile:
+#        json.dump(computation_output, outfile)
 
     return json.dumps(computation_output)
 
