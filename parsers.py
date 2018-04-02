@@ -53,7 +53,7 @@ def fsl_parser(args):
     ys = X_types
     result = [x for x, y in zip(xs, ys) if y == 'boolean']
     pd.options.mode.chained_assignment = None  # default='warn'
-    X[result] = (X[result] == True).astype(int)
+    X[result] = (X[result] is True).astype(int)
     X = X.apply(pd.to_numeric, errors='ignore')
 
     y_files = y_info[0]
