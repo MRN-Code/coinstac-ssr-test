@@ -23,16 +23,12 @@
   "data": {
     "value": [
       [
-        [
-          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject0_aseg_stats.txt",
-          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject1_aseg_stats.txt",
-          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject2_aseg_stats.txt",
-          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject3_aseg_stats.txt"
-        ]
+        "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject0_aseg_stats.txt",
+        "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject1_aseg_stats.txt",
+        "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject2_aseg_stats.txt",
+        "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject3_aseg_stats.txt"
       ],
-      [
-        ["3rd-Ventricle", "4th-Ventricle", "5th-Ventricle"]
-      ],
+      ["3rd-Ventricle", "4th-Ventricle", "5th-Ventricle"],
       [
         "FreeSurfer"
       ]
