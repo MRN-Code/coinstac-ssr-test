@@ -15,7 +15,7 @@ def parse_for_each_y(args, X_files, y_files, dependent):
         if file.split('-')[-1] in X_files:
             with open(
                     os.path.join(args["state"]["baseDirectory"],
-                                 file)) as fh:
+                                 file.split('-')[-1])) as fh:
                 for line in fh:
                     if line.startswith(dependent[0]):
                         y.append(float(line.split('\t')[1]))
@@ -40,7 +40,6 @@ def fsl_parser(args):
 
     X_data = X_info[0][0]
     X_labels = X_info[1]
-    X_types = X_info[2]
 
     X_df = pd.DataFrame.from_records(X_data)
     X_df.columns = X_df.iloc[0]
@@ -49,11 +48,6 @@ def fsl_parser(args):
     X_files = list(X_df['freesurferfile'])
 
     X = X_df[X_labels]
-    xs = X_labels
-    ys = X_types
-    result = [x for x, y in zip(xs, ys) if y == 'boolean']
-    pd.options.mode.chained_assignment = None  # default='warn'
-    X[result] = (X[result] is True).astype(int)
     X = X.apply(pd.to_numeric, errors='ignore')
 
     y_files = y_info[0]
