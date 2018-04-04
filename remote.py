@@ -39,8 +39,8 @@ def remote_1(args):
 
     """
     input_list = args["input"]
-    y_labels = input_list["local0"][
-        "y_labels"]  # don't like this line here because everyone has to sent the labels, but they should have been available at the remote itself by virtue of having specified in the compspec.json
+    userId = list(input_list)[0]
+    y_labels = input_list[userId]["y_labels"]  # don't like this line here because everyone has to sent the labels, but they should have been available at the remote itself by virtue of having specified in the compspec.json
 
     all_local_stats_dicts = [
         input_list[site]["local_stats_dict"] for site in input_list
