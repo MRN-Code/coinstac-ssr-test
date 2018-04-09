@@ -260,10 +260,10 @@
          "-Users-torrankahleck-coinstac-packages-coinstac-ui-test-e2e-test_files-site1-subject20_aseg_stats.txt"
       ],
       [
-         "3rd-Ventricle", "4th-Ventricle", "5th-Ventricle"
+         "FreeSurfer"
       ],
       [
-         "FreeSurfer"
+         "3rd-Ventricle", "4th-Ventricle", "5th-Ventricle"
       ]
    ]},
    "lambda": { "value": 2 }

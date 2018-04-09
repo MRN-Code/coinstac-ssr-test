@@ -51,7 +51,7 @@ def fsl_parser(args):
     X = X.apply(pd.to_numeric, errors='ignore')
 
     y_files = y_info[0]
-    y_labels = y_info[1]
+    y_labels = y_info[2]
 
     y_list = parse_for_y_array(args, X_files, y_files, y_labels)
     y = pd.DataFrame.from_records(y_list, columns=y_labels)
