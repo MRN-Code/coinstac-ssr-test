@@ -151,7 +151,7 @@ def get_all_keys(current_dict):
 
 if __name__ == '__main__':
 
-    parsed_args = json.loads(sys.argv[1])
+    parsed_args = json.loads(sys.stdin.read())
 
     if "computation_phase" not in list(get_all_keys(parsed_args)):
         computation_output = local_1(parsed_args)
