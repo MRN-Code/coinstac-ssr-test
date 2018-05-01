@@ -60,13 +60,16 @@ def local_1(args):
     X = input_list["covariates"]
     y = input_list["dependents"]
     lamb = input_list["lambda"]
-    biased_X = sm.add_constant(X)
 
-    beta_vector = reg.one_shot_regression(biased_X, y, lamb)
+    all_beta = []
+    for X_ in X:
+        biased_X = sm.add_constant(X_)
+        beta_vector = reg.one_shot_regression(biased_X, y, lamb)
+        all_beta.append(beta_vector.tolist())
 
     computation_output = {
         "output": {
-            "beta_vector_local": beta_vector.tolist(),
+            "beta_vector_local": all_beta,
             "mean_y_local": np.mean(y),
             "count_local": len(y),
             "computation_phase": 'local_1'
@@ -117,20 +120,31 @@ def local_2(args):
 
     X = cache_list["covariates"]
     y = cache_list["dependents"]
-    biased_X = sm.add_constant(X)
+#    biased_X = sm.add_constant(X)
 
     avg_beta_vector = input_list["avg_beta_vector"]
     mean_y_global = input_list["mean_y_global"]
 
-    SSE_local = reg.sum_squared_error(biased_X, y, avg_beta_vector)
-    SST_local = np.sum(np.square(np.subtract(y, mean_y_global)))
-    varX_matrix_local = np.dot(biased_X.T, biased_X)
+#    SSE_local = reg.sum_squared_error(biased_X, y, avg_beta_vector)
+#    SST_local = np.sum(np.square(np.subtract(y, mean_y_global)))
+#    varX_matrix_local = np.dot(biased_X.T, biased_X)
+
+    SSE_local_enigma, SST_local_enigma, varX_matrix_local_enigma = [], [], []
+    for index, X_ in enumerate(X):
+        biased_X = sm.add_constant(X_)
+        SSE_local = reg.sum_squared_error(biased_X, y, avg_beta_vector[index])
+        SST_local = np.sum(np.square(np.subtract(y, mean_y_global)))
+        varX_matrix_local = np.dot(biased_X.T, biased_X)
+
+        SSE_local_enigma.append(SSE_local)
+        SST_local_enigma.append(SST_local)
+        varX_matrix_local_enigma.append(varX_matrix_local.tolist())
 
     computation_output = {
         "output": {
-            "SSE_local": SSE_local,
-            "SST_local": SST_local,
-            "varX_matrix_local": varX_matrix_local.tolist(),
+            "SSE_local": SSE_local_enigma,
+            "SST_local": SST_local_enigma,
+            "varX_matrix_local": varX_matrix_local_enigma,
             "computation_phase": 'local_2'
         },
         "cache": {}

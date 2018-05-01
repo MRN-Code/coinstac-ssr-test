@@ -6,9 +6,23 @@ regression with decentralized statistic calculation
 """
 import json
 import sys
-import scipy as sp
 import numpy as np
 import regression as reg
+from operator import mul
+
+
+def vector_addition_from_sites(curr_list):
+    def sum_fun(x):
+        return np.sum(x, axis=0)
+
+    return list(map(sum_fun, list(map(np.array, zip(*curr_list)))))
+
+
+def vector_mean_from_sites(curr_list):
+    def mean_fun(x):
+        return np.mean(np.array(x), axis=0).tolist()
+
+    return list(map(mean_fun, list(zip(*curr_list))))
 
 
 def remote_1(args):
@@ -40,25 +54,30 @@ def remote_1(args):
     """
     input_list = args["input"]
 
-    avg_beta_vector = np.mean(
-        [input_list[site]["beta_vector_local"] for site in input_list], axis=0)
+    beta_vecs_from_local = [
+        input_list[site]["beta_vector_local"] for site in input_list
+    ]
+    avg_beta_vector = vector_mean_from_sites(beta_vecs_from_local)
 
     mean_y_local = [input_list[site]["mean_y_local"] for site in input_list]
     count_y_local = [input_list[site]["count_local"] for site in input_list]
     mean_y_global = np.average(mean_y_local, weights=count_y_local)
 
-    dof_global = sum(count_y_local) - len(avg_beta_vector)
+    dof_enigma = []
+    for beta_vec in avg_beta_vector:
+        dof_global = sum(count_y_local) - len(avg_beta_vector)
+        dof_enigma.append(dof_global)
 
     computation_output = {
         "output": {
-            "avg_beta_vector": avg_beta_vector.tolist(),
+            "avg_beta_vector": avg_beta_vector,
             "mean_y_global": mean_y_global,
             "computation_phase": 'remote_1'
         },
         "cache": {
-            "avg_beta_vector": avg_beta_vector.tolist(),
+            "avg_beta_vector": avg_beta_vector,
             "mean_y_global": mean_y_global,
-            "dof_global": dof_global
+            "dof_global": dof_enigma
         },
     }
 
@@ -111,26 +130,44 @@ def remote_2(args):
     avg_beta_vector = cache_list["avg_beta_vector"]
     dof_global = cache_list["dof_global"]
 
-    SSE_global = np.sum([input_list[site]["SSE_local"] for site in input_list])
-    SST_global = np.sum([input_list[site]["SST_local"] for site in input_list])
-    varX_matrix_global = sum([
-        np.array(input_list[site]["varX_matrix_local"]) for site in input_list
-    ])
+    sse_vecs_from_local = [
+        input_list[site]["SSE_local"] for site in input_list
+    ]
+    SSE_global = vector_mean_from_sites(sse_vecs_from_local)
 
-    r_squared_global = 1 - (SSE_global / SST_global)
-    MSE = SSE_global / dof_global
-    var_covar_beta_global = MSE * sp.linalg.inv(varX_matrix_global)
-    se_beta_global = np.sqrt(var_covar_beta_global.diagonal())
-    ts_global = avg_beta_vector / se_beta_global
-    ps_global = reg.t_to_p(ts_global, dof_global)
+    sst_vecs_from_local = [
+        input_list[site]["SST_local"] for site in input_list
+    ]
+    SST_global = vector_mean_from_sites(sst_vecs_from_local)
+
+    varX_matrix_from_local = [
+        input_list[site]["varX_matrix_local"] for site in input_list
+    ]
+
+    varX_matrix_global = vector_addition_from_sites(varX_matrix_from_local)
+
+    r_squared_global = 1 - np.divide(SSE_global, SST_global)
+    MSE = np.divide(SSE_global, dof_global)
+    varX_matrix_global_inv = list(map(np.linalg.inv, varX_matrix_global))
+    var_covar_beta_global = list(map(mul, MSE, varX_matrix_global_inv))
+    var_covar_beta_diagonal = list(map(np.diagonal, var_covar_beta_global))
+
+    se_beta_global = list(map(np.sqrt, var_covar_beta_diagonal))
+    ts_global = list(
+        map(list, map(np.divide, avg_beta_vector, se_beta_global)))
+
+    ps_global = []
+    for t, d in zip(ts_global, dof_global):
+        ps = reg.t_to_p(t, d)
+        ps_global.append(ps)
 
     computation_output = {
         "output": {
-            "avg_beta_vector": cache_list["avg_beta_vector"],
-            "r_2_global": r_squared_global,
-            "ts_global": ts_global.tolist(),
+            "avg_beta_vector": avg_beta_vector,
+            "r_2_global": r_squared_global.tolist(),
+            "ts_global": ts_global,
             "ps_global": ps_global,
-            "dof_global": cache_list["dof_global"]
+            "dof_global": dof_global
         },
         "success": True
     }
