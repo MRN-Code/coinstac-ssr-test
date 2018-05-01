@@ -61,11 +61,9 @@ def local_1(args):
     y = input_list["dependents"]
     lamb = input_list["lambda"]
 
-    all_beta = []
-    for X_ in X:
-        biased_X = sm.add_constant(X_)
-        beta_vector = reg.one_shot_regression(biased_X, y, lamb)
-        all_beta.append(beta_vector.tolist())
+    biased_X = list(map(lambda x: sm.add_constant(x, has_constant='raise'), X))
+    all_beta = list(
+        map(lambda x: reg.one_shot_regression(x, y, lamb).tolist(), biased_X))
 
     computation_output = {
         "output": {
@@ -120,14 +118,9 @@ def local_2(args):
 
     X = cache_list["covariates"]
     y = cache_list["dependents"]
-#    biased_X = sm.add_constant(X)
 
     avg_beta_vector = input_list["avg_beta_vector"]
     mean_y_global = input_list["mean_y_global"]
-
-#    SSE_local = reg.sum_squared_error(biased_X, y, avg_beta_vector)
-#    SST_local = np.sum(np.square(np.subtract(y, mean_y_global)))
-#    varX_matrix_local = np.dot(biased_X.T, biased_X)
 
     SSE_local_enigma, SST_local_enigma, varX_matrix_local_enigma = [], [], []
     for index, X_ in enumerate(X):

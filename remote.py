@@ -8,21 +8,20 @@ import json
 import sys
 import numpy as np
 import regression as reg
-from operator import mul
 
 
 def vector_addition_from_sites(curr_list):
     def sum_fun(x):
         return np.sum(x, axis=0)
 
-    return list(map(sum_fun, list(map(np.array, zip(*curr_list)))))
+    return list(map(sum_fun, map(np.array, zip(*curr_list))))
 
 
 def vector_mean_from_sites(curr_list):
     def mean_fun(x):
         return np.mean(np.array(x), axis=0).tolist()
 
-    return list(map(mean_fun, list(zip(*curr_list))))
+    return list(map(mean_fun, zip(*curr_list)))
 
 
 def remote_1(args):
@@ -148,18 +147,15 @@ def remote_2(args):
 
     r_squared_global = 1 - np.divide(SSE_global, SST_global)
     MSE = np.divide(SSE_global, dof_global)
-    varX_matrix_global_inv = list(map(np.linalg.inv, varX_matrix_global))
-    var_covar_beta_global = list(map(mul, MSE, varX_matrix_global_inv))
-    var_covar_beta_diagonal = list(map(np.diagonal, var_covar_beta_global))
+    varX_matrix_global_inv = map(np.linalg.inv, varX_matrix_global)
+    var_covar_beta_global = map(np.multiply, MSE, varX_matrix_global_inv)
+    var_covar_beta_diagonal = map(np.diagonal, var_covar_beta_global)
 
-    se_beta_global = list(map(np.sqrt, var_covar_beta_diagonal))
+    se_beta_global = map(np.sqrt, var_covar_beta_diagonal)
     ts_global = list(
         map(list, map(np.divide, avg_beta_vector, se_beta_global)))
 
-    ps_global = []
-    for t, d in zip(ts_global, dof_global):
-        ps = reg.t_to_p(t, d)
-        ps_global.append(ps)
+    ps_global = list(map(reg.t_to_p, ts_global, dof_global))
 
     computation_output = {
         "output": {

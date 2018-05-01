@@ -14,7 +14,7 @@ with warnings.catch_warnings():
     import statsmodels.api as sm
 
 
-def one_shot_regression(X, y, lamb):
+def one_shot_regression(X, y, lamb=0):
     """Performs ridge regression
 
     Args:
