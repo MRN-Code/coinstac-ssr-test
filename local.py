@@ -61,7 +61,7 @@ def local_1(args):
     y = input_list["dependents"]
     lamb = input_list["lambda"]
 
-    biased_X = list(map(lambda x: sm.add_constant(x, has_constant='raise'), X))
+    biased_X = map(lambda x: sm.add_constant(x, has_constant='raise'), X)
     all_beta = list(
         map(lambda x: reg.one_shot_regression(x, y, lamb).tolist(), biased_X))
 
