@@ -158,7 +158,7 @@ def local_2(args):
     for index, column in enumerate(y.columns):
         curr_y = list(y[column])
         SSE_local.append(
-            reg.sum_squared_error(biased_X, curr_y, avg_beta_vector))
+            reg.sum_squared_error(biased_X, curr_y, avg_beta_vector[index]))
         SST_local.append(
             np.sum(np.square(np.subtract(curr_y, mean_y_global[index]))))
 
